@@ -19,7 +19,7 @@
 using namespace std;
 
 #define COUNT_THREADS 5  //Константное количество потоков
-#define ITERATIONS 101
+#define ITERATIONS 14
 #define SIZE_BUFFER 260
 
 const int razm = 20;

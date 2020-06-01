@@ -8,13 +8,26 @@ VOID CriticalSec(VOID);
 
 DWORD WINAPI CritSecFunc(LPVOID lpParam)
 {
-
-
+	workClass a;
+	ifstream fin;
+	fin.open("d:\\1\\json.json");
+	
+	string str;
 	for (DWORD i = 0; i < ITERATIONS; ++i)
 	{
 		EnterCriticalSection(&section);
 
-		wcout << L" Thread " << *(DWORD*)lpParam << L" : " << i << L" This Thread have id= " << this_thread::get_id() << endl;
+		if (!fin.is_open())
+		{
+			cout << "Error" << endl;
+		}
+		else
+		{		
+			fin >> str;	
+		}
+		//WCHAR e = str;
+
+		cout << " Thread " << *(DWORD*)lpParam << " : " << i <<  " This Thread cout= "<< str << " This Thread have id= " << this_thread::get_id()<< endl;
 		LeaveCriticalSection(&section);
 		Sleep(rand() % 16 + 10);
 	}
@@ -107,6 +120,10 @@ void workClass::krit()
 
 int workClass::readwin()
 {
+
+
+	cout << "====================================================" << endl;
+	cout << "¬ы попали в чтение и вывод через winAPI и потоков " << endl;
 	LPCSTR PATH = "D:/1/json.json";
 
 	HANDLE hFile = CreateFile(PATH,
