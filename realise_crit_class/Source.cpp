@@ -10,9 +10,6 @@
 #include <chrono>
 
 
-#include <windows.h>
-#include <iostream>
-
 #include <cstring>//Для того, что бы использовать strcpy
 #include "workClass.h"
 

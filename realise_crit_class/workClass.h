@@ -29,6 +29,8 @@ class workClass
 public:
 	string nachinka[razm];
 
+	//DWORD WINAPI CritSecFunc(LPVOID lpParam);
+
 	void sin();
 
 	void out();

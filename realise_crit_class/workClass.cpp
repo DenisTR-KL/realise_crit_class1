@@ -5,10 +5,11 @@ CRITICAL_SECTION section = { 0 }; //Это нужно, что бы созать ту самую секцию
 
 VOID CriticalSec(VOID);
 
-DWORD WINAPI CritSecFunc(LPVOID lpParam);
 
 DWORD WINAPI CritSecFunc(LPVOID lpParam)
 {
+
+
 	for (DWORD i = 0; i < ITERATIONS; ++i)
 	{
 		EnterCriticalSection(&section);
@@ -21,11 +22,17 @@ DWORD WINAPI CritSecFunc(LPVOID lpParam)
 	ExitThread(0);
 }
 
+/*
+DWORD __stdcall workClass::CritSecFunc(LPVOID lpParam)
+{
+	return 0;
+}*/
+
 void workClass::sin()
 {
 	//CriticalSec();
 	ifstream fin;
-	fin.open("d:\\1\\json.txt");
+	fin.open("d:\\1\\json.json");
 
 	
 	string buf[razm];
@@ -79,6 +86,7 @@ void workClass::krit()
 {
 	HANDLE threads[COUNT_THREADS];
 
+
 	InitializeCriticalSection(&section);
 	for (DWORD i = 0; i < COUNT_THREADS; ++i)
 	{
@@ -99,7 +107,7 @@ void workClass::krit()
 
 int workClass::readwin()
 {
-	LPCSTR PATH = "D:/1/json.txt";
+	LPCSTR PATH = "D:/1/json.json";
 
 	HANDLE hFile = CreateFile(PATH,
 		GENERIC_READ | GENERIC_WRITE,
