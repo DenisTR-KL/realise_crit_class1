@@ -1,12 +1,14 @@
 #include "workClass.h"
 
 
-CRITICAL_SECTION section = { 0 }; //Это нужно, что бы созать ту самую секцию
+CRITICAL_SECTION section = { 0 }; //Это нужно, что бы созать ту самую секцию, в глобальной области видемости структуры
+                                 // и константы, этонормально
+
 
 VOID CriticalSec(VOID);
 
 
-DWORD WINAPI CritSecFunc(LPVOID lpParam)
+DWORD WINAPI CritSecFunc(LPVOID lpParam)//LPVOID lpParam примемает id
 {
 	workClass a;
 	ifstream fin;
@@ -15,7 +17,7 @@ DWORD WINAPI CritSecFunc(LPVOID lpParam)
 	string str;
 	for (DWORD i = 0; i < ITERATIONS; ++i)
 	{
-		EnterCriticalSection(&section);
+		EnterCriticalSection(&section);//Когда мы доходим до сюда, то секция блокируется для ВСЕХ других потоков
 
 		if (!fin.is_open())
 		{
@@ -27,7 +29,7 @@ DWORD WINAPI CritSecFunc(LPVOID lpParam)
 		}
 		//WCHAR e = str;
 
-		cout << " Thread " << *(DWORD*)lpParam << " : " << i <<  " This Thread cout= "<< str << " This Thread have id= " << this_thread::get_id()<< endl;
+		cout << " Thread " << *(DWORD*)lpParam << " : " << i <<  " ||This Thread cout= "<< str << " ||This Thread have id= " << this_thread::get_id()<< endl;
 		LeaveCriticalSection(&section);
 		Sleep(rand() % 16 + 10);
 	}
@@ -97,24 +99,25 @@ void workClass::out()
 
 void workClass::krit()
 {
-	HANDLE threads[COUNT_THREADS];
+	HANDLE threads[COUNT_THREADS];//создаём массив потоков на 5 переменных
 
 
-	InitializeCriticalSection(&section);
-	for (DWORD i = 0; i < COUNT_THREADS; ++i)
+	InitializeCriticalSection(&section); //инециализирует критическую секцию
+	for (DWORD i = 0; i < COUNT_THREADS; ++i)//DWORD 32-битное беззнаковое целое. Аналоги: unsigned long int, UINT
 	{
-		DWORD *tmp = new DWORD;
-		*tmp = i;
+		DWORD *tmp = new DWORD;// создание переменной, чтобы мы могли её корректно передать
+		*tmp = i;//если мы попробуем её прямо передать, то везде будет выводиться последнее значение цикла
+
 		threads[i] = CreateThread(NULL, 0, CritSecFunc, tmp, 0, 0);
 	}
 
 	WaitForMultipleObjects(COUNT_THREADS, threads, TRUE, INFINITE);
-	DeleteCriticalSection(&section);
+	DeleteCriticalSection(&section);//Удаляет критическую секцию
 
 	for (size_t i = 0; i < COUNT_THREADS; ++i)
 	{
 		if (threads[i] != INVALID_HANDLE_VALUE)
-			CloseHandle(threads[i]);
+			CloseHandle(threads[i]); //закрывает дискриптор открытого объекта
 	}
 }
 
@@ -127,8 +130,8 @@ int workClass::readwin()
 	LPCSTR PATH = "D:/1/json.json";
 
 	HANDLE hFile = CreateFile(PATH,
-		GENERIC_READ | GENERIC_WRITE,
-		FILE_SHARE_READ,
+		GENERIC_READ | GENERIC_WRITE,//читаем и пишем
+		FILE_SHARE_READ,      
 		NULL,
 		OPEN_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL,
@@ -136,26 +139,26 @@ int workClass::readwin()
 
 	OVERLAPPED olf = { 0 }; //Структура, в которой задана позиция в файле
 
-	LARGE_INTEGER li = { 0 };
+	
+	LARGE_INTEGER li = { 0 };// Это структура, она состоит из DWORD и LONG (старший и младший разряд)
 
-	li.QuadPart = 0;
+	li.QuadPart = 0;// Чтение с 0 символа
 	olf.Offset = li.LowPart;
 	olf.OffsetHigh = li.HighPart;
 
-	char* buffer = (CHAR*)calloc(SIZE_BUFFER + 1, sizeof(CHAR));
+	char* buffer = (CHAR*)calloc(SIZE_BUFFER + 1, sizeof(CHAR));//Буфер в кодировке аски
+
 	DWORD iNumRead = 0;//Параметр, который получает кол-во считанных байт
 
 	if (!ReadFile(hFile, buffer, SIZE_BUFFER, &iNumRead, &olf))
-	return 1;
+	return 1;//Проверка , если вернёт НЕ 0, то всё хорошо
 	if (olf.Internal == -1 && GetLastError())
-	return 2;
+	return 2;//Редкая ошибка
 
 
 
-	olf.Offset += iNumRead;//добавляем кол-во прочитанных байт
+	olf.Offset += iNumRead;//добавляем кол-во прочитанных байт к текущей позиции
 
-	cout << "====================================================" << endl;
-	cout << "Вы попали в чтение и вывод через winAPI " << endl;
 
 	string b = string(buffer);
 	cout << b << endl;
@@ -163,6 +166,6 @@ int workClass::readwin()
 
 
 
-	CloseHandle(hFile);
+	CloseHandle(hFile);//закрывает дискриптор открытого объекта
 	return 0;
 }
